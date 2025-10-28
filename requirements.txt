@@ -1,0 +1,15 @@
+numpy
+pandas
+matplotlib
+scipy
+tqdm
+ipykernel
+notebook
+pyarrow
+scikit-learn
+seaborn
+jupyterlab
+plotly
+transformers
+datasets
+torch

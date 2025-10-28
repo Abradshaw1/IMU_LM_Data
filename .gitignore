@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.IMU_Data_env/
+.env
+.python-version
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+datadrive/
+cleaned_premerge/
+merged_dataset/
+raw_data/
+*.parquet
+*.h5
+*.csv
+
+# OS
+.DS_Store
+Thumbs.db
+EOF
