@@ -60,6 +60,7 @@ The unified dataset can be used directly by IMU foundation-model pipelines (e.g.
 
 ## 🧱 Repository Structure
 
+```
 IMU_LM_Data/
 │
 ├── data/
@@ -90,7 +91,7 @@ IMU_LM_Data/
 │
 ├── requirements.txt                 # Core dependencies (numpy, pandas, pyarrow, etc.)
 └── README.md                        # You are here
-
+```
 
 ## 🧠 Future Extensions
 
