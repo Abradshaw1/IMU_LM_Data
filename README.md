@@ -77,7 +77,7 @@ IMU_LM_Data/
 │   └── Wear/
 │       ├── load_and_preprocess.ipynb
 │       └── README.md
-│   # Each subfolder: dataset-specific preprocessing, cleaning, mapping
+│   # Each subfolder: dataset-specific preprocessing, cleaning, mappings
 │
 ├── Unification/
 │   ├── schemas/

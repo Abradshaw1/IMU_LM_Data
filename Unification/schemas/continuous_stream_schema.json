@@ -1,0 +1,39 @@
+{
+  "name": "continuous_stream",
+  "version": 3,
+  "primary_index": ["dataset", "subject_id", "session_id", "timestamp_ns"],
+  "description": "Unified 50 Hz IMU continuous stream. Axes FLU. Units: acc m/s^2 (g-included), gyro rad/s.",
+  "columns": [
+    { "name": "dataset", "dtype": "string", "nullable": false },
+    { "name": "subject_id", "dtype": "string", "nullable": false },
+    { "name": "session_id", "dtype": "string", "nullable": false },
+    { "name": "timestamp_ns", "dtype": "int64", "nullable": false },
+
+    { "name": "acc_x", "dtype": "float32", "nullable": false },
+    { "name": "acc_y", "dtype": "float32", "nullable": false },
+    { "name": "acc_z", "dtype": "float32", "nullable": false },
+    { "name": "gyro_x", "dtype": "float32", "nullable": true },
+    { "name": "gyro_y", "dtype": "float32", "nullable": true },
+    { "name": "gyro_z", "dtype": "float32", "nullable": true },
+
+    { "name": "global_activity_id", "dtype": "int16", "nullable": false, "description": "Global canonical ID (use unknown_activity_id if not mapped)" },
+    { "name": "global_activity_label", "dtype": "string", "nullable": false, "description": "Global canonical label (e.g., 'walk' or 'other')" },
+
+    { "name": "dataset_activity_id", "dtype": "int16", "nullable": false, "description": "Native per-dataset ID (stable 1:1 with native label)" },
+    { "name": "dataset_activity_label", "dtype": "string", "nullable": false, "description": "Native per-dataset label (verbatim)" }
+  ],
+  "rate_hz": 50,
+  "axis_frame": "FLU",
+  "unit_contract": { "acc": "m_s2", "gyro": "rad_s" },
+  "unknown_activity_id": 9000,
+  "expectations": {
+    "monotonic_timestamp_per_session": true,
+    "approx_rate_hz_tolerance": 0.5,
+    "required_not_null": [
+      "dataset", "subject_id", "session_id", "timestamp_ns",
+      "acc_x", "acc_y", "acc_z",
+      "global_activity_id", "global_activity_label",
+      "dataset_activity_id", "dataset_activity_label"
+    ]
+  }
+}
