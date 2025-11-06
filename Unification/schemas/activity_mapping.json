@@ -148,6 +148,11 @@
 
     "ascending_stairs": 4,
     "descending_stairs": 4,
+    "stretching (lunging)": 12,
+    "stretching (triceps)": 12,
+    "stretching (lumbar rotation)": 12,
+    "stretching (hamstrings)": 12,
+    "stretching (shoulders)": 12,
 
     "close_dishwasher": 20,
     "open_dishwasher": 20,
@@ -297,6 +302,7 @@
     "drawer3": 20,
     "knife_cheese": 15,
     "knife_salami": 15,
-    "lazychair": 13
+    "lazychair": 13,
+    "unknown": 9000
   }
 }
