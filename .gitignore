@@ -18,6 +18,9 @@ raw_data/
 *.h5
 *.csv
 temp/
+Unification/temp/
+
+scratch.ipynb
 
 # OS
 .DS_Store

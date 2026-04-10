@@ -71,7 +71,7 @@ The pipeline employs a **two-tier labeling system**:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Abradshaw1/IMU_LM_Data.git
+git clone https://github.com/<ANONYMOUS>/IMU_LM_Data.git
 cd IMU_LM_Data
 ```
 
@@ -153,4 +153,4 @@ IMU_LM_Data/
 
 ## 📄 License
 
-This project is intended for research and educational use within the IMU-LM project.
+This project is intended for research and educational use within the TransfHAR project.
