@@ -17,6 +17,7 @@ raw_data/
 *.parquet
 *.h5
 *.csv
+temp/
 
 # OS
 .DS_Store
