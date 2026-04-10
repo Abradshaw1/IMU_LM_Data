@@ -1,156 +1,87 @@
-# IMU_LM_Data
-**Data alignment and unification pipeline for the IMU-LM foundation model.**  
-This repository standardizes multiple wearable and activity-recognition datasets into a single unified schema suitable for downstream training of large-scale IMU foundation models. The pipeline produces a **50 Hz, wrist-only IMU stream** with harmonized coordinate frames, consistent physical units, and a shared activity label taxonomy across all datasets.
+# IMU Dataset Unification Pipeline
 
-## 🌐 Overview
-The goal of this repository is to **consolidate heterogeneous IMU datasets** (e.g., RecoFit, PAMAP2, Opportunity++, Samosa, Wear, UT_Watch) into a **consistent, schema-aligned, and clean format**.  
+Data alignment and unification pipeline for wrist-worn IMU datasets.
+This repository standardizes multiple wearable and activity-recognition datasets into a single unified schema suitable for downstream model training. The pipeline produces a **50 Hz, wrist-only IMU stream** with harmonized coordinate frames, consistent physical units, and a shared activity label taxonomy across all datasets.
+
+## Overview
 
 Each dataset is preprocessed individually before being merged into a unified representation that shares:
-- **Common sensor channels**: accelerometer and gyroscope only (magnetometer excluded)
-- **Standardized sampling rate**: 50 Hz continuous stream (downsampled from higher rates where necessary)
-- **Unified coordinate frame**: FLU (Forward–Left–Up) orientation for all axes
+- **Common sensor channels**: accelerometer and gyroscope only
+- **Standardized sampling rate**: 50 Hz continuous stream
+- **Unified coordinate frame**: FLU (Forward-Left-Up) orientation
 - **Consistent physical units**: acceleration in m/s² (gravity included), gyroscope in rad/s
-- **Wrist-only placement**: single wrist sensor stream (chest/ankle sensors dropped in multi-device datasets)
-- **Harmonized activity labels**: global activity ontology with preserved native labels for traceability
+- **Wrist-only placement**: single wrist sensor stream
+- **Harmonized activity labels**: global activity ontology with preserved native labels
 - **Canonical column names**: defined in the unification schema with strict ordering and data types
 
-## 📊 Final Dataset Structure
-
-### Target Schema
-The unified dataset follows a strict schema optimized for time-series foundation model training:
+## Dataset Schema
 
 **Primary Index**: `["dataset", "subject_id", "session_id", "timestamp_ns"]`
 
 **Core Columns** (in order):
-1. `dataset` — string (dataset identifier, e.g., "pamap2", "recofit")
-2. `subject_id` — string (dataset-local participant ID)
-3. `session_id` — string (recording session or trial identifier)
-4. `timestamp_ns` — int64 (nanoseconds since session start; strictly non-decreasing)
-5. `acc_x`, `acc_y`, `acc_z` — float32 (linear acceleration in m/s², gravity included)
-6. `gyro_x`, `gyro_y`, `gyro_z` — float32 (angular velocity in rad/s)
-7. `global_activity_id` — int16 (mapped to shared ontology; 9000 = unknown/other)
-8. `global_activity_label` — string (human-readable activity name from ontology)
-9. `dataset_activity_id` — int16 (original numeric activity ID from source dataset)
-10. `dataset_activity_label` — string (original verbatim activity label for traceability)
+1. `dataset` — string
+2. `subject_id` — string
+3. `session_id` — string
+4. `timestamp_ns` — int64 (nanoseconds, strictly non-decreasing)
+5. `acc_x`, `acc_y`, `acc_z` — float32 (m/s², gravity included)
+6. `gyro_x`, `gyro_y`, `gyro_z` — float32 (rad/s)
+7. `global_activity_id` — int16 (9000 = unknown)
+8. `global_activity_label` — string
+9. `dataset_activity_id` — int16
+10. `dataset_activity_label` — string
 
-### Normalization Specifications
+## Setup
 
-**Sampling Rate**: All signals are resampled to exactly **50 Hz** using FIR filtering followed by decimation to prevent aliasing.
-
-**Coordinate Frame Alignment**: All IMU axes are transformed to the **FLU (Forward–Left–Up)** coordinate system:
-- **Forward**: direction of wrist extension (toward fingers)
-- **Left**: perpendicular to Forward, pointing left (radial direction)
-- **Up**: perpendicular to both, pointing away from the ground when arm hangs naturally
-
-Datasets with varying native coordinate systems (e.g., NED, ENU, device-specific frames) undergo rotation matrix transformations to achieve FLU alignment.
-
-**Physical Units**:
-- **Accelerometer**: m/s² with gravity **included** (raw accelerometer reading; no gravity subtraction)
-- **Gyroscope**: rad/s (converted from deg/s where necessary)
-
-**Sensor Placement**: Only **wrist-worn sensors** are included in the final stream. For multi-device datasets (e.g., chest, ankle, wrist), only the wrist stream is retained.
-
-### Activity Label Harmonization
-
-The pipeline employs a **two-tier labeling system**:
-
-1. **Global Ontology**: Activities are mapped to a shared taxonomy (e.g., `walk`, `run`, `adl_household_general`, `exercise_jump_rope`) with numeric IDs. Examples:
-   - `walking`, `nordic_walking` → `walk (id=2)`
-   - `vacuum_cleaning`, `ironing`, `folding_laundry` → `adl_household_general (id=13)`
-   - `rope_jumping` → `exercise_jump_rope (id=10)`
-
-2. **Native Label Preservation**: Original dataset labels and IDs are retained in `dataset_activity_id` and `dataset_activity_label` for full traceability and dataset-specific analysis.
-
-**Unknown/Ambiguous Activities**: Any activity that cannot be confidently mapped to the global ontology (including transient states, unlabeled segments, or highly dataset-specific activities) receives `global_activity_id = 9000` with label `unknown_activity`.
-
-**Label Mapping File**: The global ontology and all dataset-specific mappings are defined in `schemas/activity_mapping.json`, which serves as the authoritative source for label unification.
-
-
-## ⚙️ Setup
-
-### 1. Clone the repository
+### 1. Create a virtual environment
 
 ```bash
-git clone https://github.com/<ANONYMOUS>/IMU_LM_Data.git
-cd IMU_LM_Data
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-### 2. Create a virtual environment
-
-```bash
-python3 -m venv .IMUDATA
-source .IMUDATA/bin/activate   # Windows: .IMUDATA\Scripts\activate
-```
-
-### 3. Install dependencies
+### 2. Install dependencies
 
 ```bash
 pip install -U pip
 pip install -r requirements.txt
 ```
 
-## 🚀 Usage
+## Usage
 
-Step 0
+**Step 1** — Download the raw datasets and place them under `data/raw_data/`.
 
-Please download the datasets from the following links and replace the `data/raw_data` directory:
+**Step 2** — Run each notebook under `Individual_dataloaders/` to clean, normalize, and export each dataset to `data/cleaned_premerge/`.
 
+**Step 3** — Run `Unification/merge_pipeline.ipynb` to merge all cleaned datasets into a unified parquet file.
 
-Step 1 — Dataset preprocessing
-
-Run each notebook under `Individual_dataloaders/` to:
-
-- Load raw dataset files
-- Apply cleaning, filtering, and normalization
-- Export the cleaned dataset to `data/cleaned_premerge/` as a Parquet file
-
-Step 2 — Schema unification
-
-In `Unification/merge_pipeline.ipynb`:
-
-- Merge all datasets into `data/merged_dataset/unified_dataset.parquet`
-
-## 🧱 Repository Structure
+## Repository Structure
 
 ```
-IMU_LM_Data/
-│
 ├── data/
 │   ├── raw_data/              # Original downloaded datasets
-│   ├── cleaned_premerge/      # Cleaned & standardized per-dataset Parquet files
-│   └── merged_dataset/        # Final unified dataset for model training
+│   ├── cleaned_premerge/      # Cleaned per-dataset Parquet files
+│   └── merged_dataset/        # Final unified dataset
 │
-├── Individual_dataloaders/
-│   ├── Opportunity++/
-│   ├── PAMAP2/
-│   ├── RecoFit/
-│   ├── Samosa/
-│   ├── UT_Watch/
-│   └── Wear/
-│       ├── load_and_preprocess.ipynb
-│       └── README.md
-│   # Each subfolder: dataset-specific preprocessing, cleaning, mappings
+├── Individual_dataloaders/    # One subfolder per dataset
+│   └── <DatasetName>/
+│       └── load_and_preprocess.ipynb
+│
+├── RTdata_collection/         # Real-time data collection preprocessing
+│   └── preprocess_files.ipynb
 │
 ├── Unification/
 │   ├── schemas/
-│   │   ├── main_schema.json         # Canonical column definitions (dtype, semantics)
-│   │   └── activity_mapping.json    # Global label harmonization map
-│   ├── merge_pipeline.ipynb        # Merges all cleaned datasets → unified Parquet
-│   └── README.md                   # Explains schema design and merge rules
+│   │   ├── continuous_stream_schema.json
+│   │   └── activity_mapping.json
+│   └── merge_pipeline.ipynb
 │
 ├── UTILS/
-│   └── helpers.py                   # Common functions: schema validation, IO, mapping
+│   └── helpers.py
 │
-├── requirements.txt                 # Core dependencies (numpy, pandas, pyarrow, etc.)
-└── README.md                        # You are here
+├── requirements.txt
+└── README.md
 ```
 
-## 🧠 Future Extensions
+## License
 
-- Add temporal resampling and device-alignment utilities
-- Integrate automatic label cleaning and activity taxonomy matching
-- Extend schema to multimodal sensor streams (e.g., PPG, ECG, audio)
-
-## 📄 License
-
-This project is intended for research and educational use within the TransfHAR project.
+This project is intended for research and educational use.
